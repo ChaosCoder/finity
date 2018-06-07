@@ -19,6 +19,7 @@ export default class StateMachine {
     this.contextFactory = contextFactory;
     this.currentState = null;
     this.submachines = new Map();
+    this.stateData = new Map(Array.from(this.config.states.keys()).map(state => ([state, {}])));
     this.timerIDs = null;
     this.asyncActionCancelers = null;
     this.handleAsyncActionComplete = this.handleAsyncActionComplete.bind(this);
@@ -27,6 +28,14 @@ export default class StateMachine {
 
   getCurrentState() {
     return this.currentState;
+  }
+
+  getStateData(state) {
+    return this.stateData.get(state);
+  }
+
+  getCurrentStateData() {
+    return this.getStateData(this.currentState);
   }
 
   async canHandle(event, eventPayload) {

@@ -25,6 +25,14 @@ export default class HierarchicalStateMachine {
     return this.currentStateMachine.getCurrentState();
   }
 
+  getStateData(state) {
+    return this.currentStateMachine.getStateData(state);
+  }
+
+  getCurrentStateData() {
+    return this.currentStateMachine.getCurrentStateData();
+  }
+
   getSubmachine() {
     const submachine = this.currentStateMachine.getSubmachine();
     if (submachine) {
