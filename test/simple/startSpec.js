@@ -78,18 +78,6 @@ describe('Configurator#start', () => {
       ['stateEntryAction', tagFor('state2'), context2],
     ]);
   });
-
-  forAllTagTypesIt('throws when the initial state is not defined', async () => {
-    let error;
-    try {
-      await Finity.configure().start();
-    } catch (e) {
-      error = e;
-    }
-
-    expect(error instanceof StateMachineConfigError).toBe(true);
-    expect(error.message).toBe('Initial state must be specified.');
-  });
 });
 
 describe('Finity.start', () => {
@@ -142,6 +130,20 @@ describe('Finity.start', () => {
 
       expect(error instanceof StateMachineConfigError).toBe(true);
       expect(error.message).toBe('Configuration must be an object.');
+    });
+  });
+
+  describe('when `configuration` is a malformed object', () => {
+    it('throws', async () => {
+      let error;
+      try {
+        await Finity.start({ foo: 'bar' });
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error instanceof StateMachineConfigError).toBe(true);
+      expect(error.message).toBe('Configuration is malformed.');
     });
   });
 });

@@ -8,7 +8,7 @@ export default class StateMachineConfigurator extends BaseConfigurator {
     super();
     this.config = {
       global: new GlobalConfigurator(this),
-      initialState: null,
+      initialState: undefined,
       states: new Map(),
     };
   }

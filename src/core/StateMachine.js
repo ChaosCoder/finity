@@ -2,22 +2,28 @@ import { UnhandledEventError, StateMachineNotStartedError, StateMachineConfigErr
 import invokeEach from '../utils/invokeEach';
 
 const noop = () => {};
+const stopped = Symbol('StateMachine:stopped');
 
 export default class StateMachine {
   constructor(config, taskScheduler, contextFactory) {
     if (config === undefined || config === null) {
       throw new StateMachineConfigError('Configuration must be specified.');
     }
-    if (typeof config !== 'object') {
+    if (config === null || typeof config !== 'object') {
       throw new StateMachineConfigError('Configuration must be an object.');
     }
-    if (config.initialState === undefined || config.initialState === null) {
-      throw new StateMachineConfigError('Initial state must be specified.');
+    if (
+      config.global === null ||
+      typeof config.global !== 'object' ||
+      !(config.states instanceof Map) ||
+      Array.from(config.states.values()).filter(x => (x === null || typeof x !== 'object')).length > 0 ||
+    false) {
+      throw new StateMachineConfigError('Configuration is malformed.');
     }
     this.config = config;
     this.taskScheduler = taskScheduler;
     this.contextFactory = contextFactory;
-    this.currentState = null;
+    this.currentState = stopped;
     this.submachines = new Map();
     this.stateData = new Map(Array.from(this.config.states.keys()).map(state => ([state, {}])));
     this.timerIDs = null;
@@ -78,7 +84,7 @@ export default class StateMachine {
   }
 
   isStarted() {
-    return this.currentState !== null;
+    return this.currentState !== stopped;
   }
 
   async start() {
@@ -90,7 +96,7 @@ export default class StateMachine {
   async stop() {
     if (this.isStarted()) {
       await this.exitState(this.createContext());
-      this.currentState = null;
+      this.currentState = stopped;
     }
   }
 
@@ -134,7 +140,7 @@ export default class StateMachine {
       await invokeEach(stateConfig.entryActions, state, context);
     }
 
-    if (this.currentState !== null && this.currentState !== state) {
+    if (this.currentState !== stopped && this.currentState !== state) {
       await invokeEach(this.config.global.stateChangeHooks, this.currentState, state, context);
     }
 
