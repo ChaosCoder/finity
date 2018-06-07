@@ -1,5 +1,6 @@
 import Finity from '../../src';
 import HandlerMocks from '../support/HandlerMocks';
+import { StateMachineConfigError } from '../../src/core/Errors';
 
 // eslint-disable-next-line no-unused-vars
 import { tagFor, it, describe, beforeEach, afterEach, describeForAllTagTypes, forAllTagTypesIt } from '../support/forAllTagTypes';
@@ -86,7 +87,7 @@ describe('Configurator#start', () => {
       error = e;
     }
 
-    expect(error instanceof Error).toBe(true);
+    expect(error instanceof StateMachineConfigError).toBe(true);
     expect(error.message).toBe('Initial state must be specified.');
   });
 });
@@ -102,39 +103,45 @@ describe('Finity.start', () => {
     expect(stateMachine.getCurrentState()).toBe(tagFor('state1'));
   });
 
-  forAllTagTypesIt('throws when `configuration` is not specified', async () => {
-    let error;
-    try {
-      await Finity.start();
-    } catch (e) {
-      error = e;
-    }
+  describe('when `configuration` is not specified', () => {
+    forAllTagTypesIt('throws', async () => {
+      let error;
+      try {
+        await Finity.start();
+      } catch (e) {
+        error = e;
+      }
 
-    expect(error instanceof Error).toBe(true);
-    expect(error.message).toBe('Configuration must be specified.');
+      expect(error instanceof StateMachineConfigError).toBe(true);
+      expect(error.message).toBe('Configuration must be specified.');
+    });
   });
 
-  forAllTagTypesIt('throws when `configuration` is null', async () => {
-    let error;
-    try {
-      await Finity.start(null);
-    } catch (e) {
-      error = e;
-    }
+  describe('when `configuration` is null', () => {
+    forAllTagTypesIt('throws', async () => {
+      let error;
+      try {
+        await Finity.start(null);
+      } catch (e) {
+        error = e;
+      }
 
-    expect(error instanceof Error).toBe(true);
-    expect(error.message).toBe('Configuration must be specified.');
+      expect(error instanceof StateMachineConfigError).toBe(true);
+      expect(error.message).toBe('Configuration must be specified.');
+    });
   });
 
-  forAllTagTypesIt('throws when `configuration` is not an object', async () => {
-    let error;
-    try {
-      await Finity.start(100);
-    } catch (e) {
-      error = e;
-    }
+  describe('when `configuration` is not an object', () => {
+    forAllTagTypesIt('throws', async () => {
+      let error;
+      try {
+        await Finity.start(100);
+      } catch (e) {
+        error = e;
+      }
 
-    expect(error instanceof Error).toBe(true);
-    expect(error.message).toBe('Configuration must be an object.');
+      expect(error instanceof StateMachineConfigError).toBe(true);
+      expect(error.message).toBe('Configuration must be an object.');
+    });
   });
 });
