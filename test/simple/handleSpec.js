@@ -1,11 +1,57 @@
 import Finity from '../../src';
 import HandlerMocks from '../support/HandlerMocks';
-import { UnhandledEventError } from '../../src/core/Errors';
+import { UnhandledEventError, StateMachineNotStartedError } from '../../src/core/Errors';
 
 // eslint-disable-next-line no-unused-vars
 import { tagFor, it, describe, beforeEach, afterEach, describeForAllTagTypes, forAllTagTypesIt } from '../support/forAllTagTypes';
 
 describe('handle', () => {
+  describe('when the state machine hasn\'t completed startup', () => {
+    forAllTagTypesIt('throws', async () => {
+      let partlyStartedPromiseResolver;
+      const partlyStartedPromise = new Promise(resolve => {
+        partlyStartedPromiseResolver = resolve;
+      });
+
+      let blockingPromiseResolver;
+      const blockingPromise = new Promise(resolve => {
+        blockingPromiseResolver = resolve;
+      });
+
+      Finity
+        .configure()
+        .initialState(tagFor('state1'))
+          .onEnter(async (state, ctx) => {
+            partlyStartedPromiseResolver(ctx.stateMachine);
+            await blockingPromise;
+          })
+          .on(tagFor('event1')).ignore()
+        .start();
+
+      const stateMachine = await partlyStartedPromise;
+
+      let error;
+      let handlePromise;
+      try {
+        handlePromise = stateMachine.rootStateMachine.handle(tagFor('event1'));
+      } catch (e) {
+        error = e;
+      } finally {
+        blockingPromiseResolver();
+      }
+
+      if (!error) {
+        try {
+          await handlePromise;
+        } catch (e) {
+          error = e;
+        }
+      }
+
+      expect(error instanceof StateMachineNotStartedError).toBe(true);
+    });
+  });
+
   describe('when there are no transitions for the current state and event', () => {
     forAllTagTypesIt('throws', async () => {
       const stateMachine = await Finity
