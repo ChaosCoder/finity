@@ -91,6 +91,53 @@ describe('Finity.start', () => {
     expect(stateMachine.getCurrentState()).toBe(tagFor('state1'));
   });
 
+  forAllTagTypesIt('handles an undefined initial state', async () => {
+    const stateMachine = await Finity.configure()
+      .state()
+        .on(tagFor('event1')).transitionTo(tagFor('state1'))
+      .state(null)
+        .on(tagFor('event1')).transitionTo(tagFor('state2'))
+      .state(tagFor('state1'))
+      .state(tagFor('state2'))
+      .start();
+
+    await stateMachine.handle(tagFor('event1'));
+
+    expect(stateMachine.getCurrentState()).toBe(tagFor('state1'));
+  });
+
+  forAllTagTypesIt('handles undefined as an initial state', async () => {
+    const stateMachine = await Finity.configure()
+      .initialState(undefined)
+      .state()
+        .on(tagFor('event1')).transitionTo(tagFor('state1'))
+      .state(null)
+        .on(tagFor('event1')).transitionTo(tagFor('state2'))
+      .state(tagFor('state1'))
+      .state(tagFor('state2'))
+      .start();
+
+    await stateMachine.handle(tagFor('event1'));
+
+    expect(stateMachine.getCurrentState()).toBe(tagFor('state1'));
+  });
+
+  forAllTagTypesIt('handles null as an initial state', async () => {
+    const stateMachine = await Finity.configure()
+      .initialState(null)
+      .state()
+        .on(tagFor('event1')).transitionTo(tagFor('state1'))
+      .state(null)
+        .on(tagFor('event1')).transitionTo(tagFor('state2'))
+      .state(tagFor('state1'))
+      .state(tagFor('state2'))
+      .start();
+
+    await stateMachine.handle(tagFor('event1'));
+
+    expect(stateMachine.getCurrentState()).toBe(tagFor('state2'));
+  });
+
   describe('when `configuration` is not specified', () => {
     forAllTagTypesIt('throws', async () => {
       let error;

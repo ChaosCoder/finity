@@ -39,7 +39,7 @@ describe('persistence', () => {
       .state(state2)
         .on('event2').transitionTo(state1)
           .withCondition(ctx => !ctx.stateMachine.getCurrentState().wentBackAlready)
-          .withAction((from, to, ctx) => {
+          .withAction(from => {
             from.wentBackAlready = true;
           })
         .on('event2').transitionTo(state3)
