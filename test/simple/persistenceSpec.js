@@ -11,7 +11,7 @@ describe('persistence', () => {
         .on(tagFor('event1')).transitionTo(tagFor('state2'))
       .state(tagFor('state2'))
         .on(tagFor('event2')).transitionTo(tagFor('state1'))
-          .withCondition(ctx => !ctx.stateMachine.getCurrentStateData().wentBackAlready)
+          .withCondition(function () { return !this.getCurrentStateData().wentBackAlready; })
           .withAction((from, to, ctx) => {
             ctx.stateMachine.getCurrentStateData().wentBackAlready = true;
           })
@@ -25,6 +25,7 @@ describe('persistence', () => {
     await stateMachine.handle(tagFor('event2'));
 
     expect(stateMachine.getCurrentState()).toBe(tagFor('state3'));
+    expect(stateMachine.getStateData(tagFor('state2')).wentBackAlready).toBe(true);
   });
 
   it('handles changed properties on state objects', async () => {

@@ -429,6 +429,21 @@ describe('handle', () => {
     }
   );
 
+  describe('when there are two catch-all transitions', () => {
+    forAllTagTypesIt('the first registered one is called', async () => {
+      const stateMachine = await Finity
+        .configure()
+        .initialState(tagFor('state1'))
+          .onAny().transitionTo(tagFor('state2'))
+          .onAny().transitionTo(tagFor('state3'))
+        .start();
+
+      await stateMachine.handle(tagFor('event1'));
+
+      expect(stateMachine.getCurrentState()).toBe(tagFor('state2'));
+    });
+  });
+
   forAllTagTypesIt('passes a context object to guard conditions', async () => {
     const condition = jasmine.createSpy('condition').and.returnValue(true);
 
