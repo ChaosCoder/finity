@@ -32,6 +32,7 @@
     "function-paren-newline": "off",
     "prefer-destructuring": "off",
     "no-return-await": "off",
-    "no-return-assign": ["error", "except-parens"]
+    "no-return-assign": ["error", "except-parens"],
+    "func-names": "off"
   }
 }

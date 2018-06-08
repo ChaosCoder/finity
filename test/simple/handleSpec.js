@@ -21,8 +21,8 @@ describe('handle', () => {
       Finity
         .configure()
         .initialState(tagFor('state1'))
-          .onEnter(async (state, ctx) => {
-            partlyStartedPromiseResolver(ctx.stateMachine);
+          .onEnter(async function () {
+            partlyStartedPromiseResolver(this);
             await blockingPromise;
           })
           .on(tagFor('event1')).ignore()
@@ -485,9 +485,9 @@ describe('handle', () => {
         .on(tagFor('event1'))
           .transitionTo(tagFor('state2'))
             .withAction(mocks.transitionAction)
-        .onExit((...args) => {
+        .onExit(function (...args) {
           // send a new event in the mtagFor('le') of processing another event
-          stateMachine.handle(tagFor('event2'));
+          this.handle(tagFor('event2'));
           // this should be called before processing the new event
           mocks.stateExitAction(...args);
         })

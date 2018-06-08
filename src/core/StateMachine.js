@@ -68,18 +68,19 @@ export default class StateMachine {
   }
 
   async handleUnhandledEvent(event, eventPayload) {
+    const context = this.createContextWithEvent(event, eventPayload);
     if (this.config.global.unhandledEventHooks.length > 0) {
-      return (await invokeEach(
+      return (await invokeEach.bind(context.stateMachine)(
         this.config.global.unhandledEventHooks,
         event,
         this.currentState,
-        this.createContextWithEvent(event, eventPayload)
+        context
       ))[0];
     }
     throw new UnhandledEventError(
       event,
       this.currentState,
-      this.createContextWithEvent(event, eventPayload)
+      context
     );
   }
 
@@ -117,8 +118,13 @@ export default class StateMachine {
       transitionConfig.targetState :
       this.currentState;
 
-    await invokeEach(this.config.global.transitionHooks, this.currentState, nextState, context);
-    const actionRetvals = await invokeEach(
+    await invokeEach.bind(context.stateMachine)(
+      this.config.global.transitionHooks,
+      this.currentState,
+      nextState,
+      context
+    );
+    const actionRetvals = await invokeEach.bind(context.stateMachine)(
       transitionConfig.actions,
       this.currentState,
       nextState,
@@ -133,15 +139,20 @@ export default class StateMachine {
   }
 
   async enterState(state, context) {
-    await invokeEach(this.config.global.stateEnterHooks, state, context);
+    await invokeEach.bind(context.stateMachine)(this.config.global.stateEnterHooks, state, context);
 
     const stateConfig = this.config.states.get(state);
     if (stateConfig) {
-      await invokeEach(stateConfig.entryActions, state, context);
+      await invokeEach.bind(context.stateMachine)(stateConfig.entryActions, state, context);
     }
 
     if (this.currentState !== stopped && this.currentState !== state) {
-      await invokeEach(this.config.global.stateChangeHooks, this.currentState, state, context);
+      await invokeEach.bind(context.stateMachine)(
+        this.config.global.stateChangeHooks,
+        this.currentState,
+        state,
+        context
+      );
     }
 
     try {
@@ -162,11 +173,19 @@ export default class StateMachine {
     this.stopTimers();
     this.cancelAsyncActions();
 
-    await invokeEach(this.config.global.stateExitHooks, this.currentState, context);
+    await invokeEach.bind(context.stateMachine)(
+      this.config.global.stateExitHooks,
+      this.currentState,
+      context
+    );
 
     const stateConfig = this.config.states.get(this.currentState);
     if (stateConfig) {
-      await invokeEach(stateConfig.exitActions, this.currentState, context);
+      await invokeEach.bind(context.stateMachine)(
+        stateConfig.exitActions,
+        this.currentState,
+        context
+      );
     }
   }
 
@@ -264,10 +283,9 @@ export default class StateMachine {
 
   static async getFirstAllowedTransition(transitions, context) {
     for (let i = 0; i < transitions.length; i++) {
+      if (!transitions[i].condition) return transitions[i];
       // eslint-disable-next-line no-await-in-loop
-      if (!transitions[i].condition || await transitions[i].condition(context)) {
-        return transitions[i];
-      }
+      if (await transitions[i].condition.bind(context.stateMachine)(context)) return transitions[i];
     }
     return null;
   }

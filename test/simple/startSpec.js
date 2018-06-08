@@ -53,8 +53,8 @@ describe('Configurator#start', () => {
     const stateMachine = await (Finity
       .configure()
       .initialState(tagFor('state1'))
-        .onEnter((state, context) => {
-          context.stateMachine.handle(tagFor('event1'));
+        .onEnter(function (state, context) {
+          this.handle(tagFor('event1'));
           // this should be called before processing the event
           mocks.stateEntryAction(state, context);
         })
