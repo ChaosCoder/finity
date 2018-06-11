@@ -147,7 +147,7 @@ describe('Finity.start', () => {
         error = e;
       }
 
-      expect(error instanceof StateMachineConfigError).toBe(true);
+      expect(error).toEqual(jasmine.any(StateMachineConfigError));
       expect(error.message).toBe('Configuration must be specified.');
     });
   });
@@ -161,7 +161,7 @@ describe('Finity.start', () => {
         error = e;
       }
 
-      expect(error instanceof StateMachineConfigError).toBe(true);
+      expect(error).toEqual(jasmine.any(StateMachineConfigError));
       expect(error.message).toBe('Configuration must be specified.');
     });
   });
@@ -175,7 +175,7 @@ describe('Finity.start', () => {
         error = e;
       }
 
-      expect(error instanceof StateMachineConfigError).toBe(true);
+      expect(error).toEqual(jasmine.any(StateMachineConfigError));
       expect(error.message).toBe('Configuration must be an object.');
     });
   });
@@ -189,7 +189,7 @@ describe('Finity.start', () => {
         error = e;
       }
 
-      expect(error instanceof StateMachineConfigError).toBe(true);
+      expect(error).toEqual(jasmine.any(StateMachineConfigError));
       expect(error.message).toBe('Configuration is malformed.');
     });
   });

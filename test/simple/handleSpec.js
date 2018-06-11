@@ -48,7 +48,7 @@ describe('handle', () => {
         }
       }
 
-      expect(error instanceof StateMachineNotStartedError).toBe(true);
+      expect(error).toEqual(jasmine.any(StateMachineNotStartedError));
     });
   });
 
@@ -66,7 +66,7 @@ describe('handle', () => {
         error = e;
       }
 
-      expect(error instanceof UnhandledEventError).toBe(true);
+      expect(error).toEqual(jasmine.any(UnhandledEventError));
       expect(error.event).toBe(tagFor('event1'));
       expect(error.state).toBe(tagFor('state1'));
     });
@@ -189,7 +189,7 @@ describe('handle', () => {
           error = e;
         }
 
-        expect(error instanceof UnhandledEventError).toBe(true);
+        expect(error).toEqual(jasmine.any(UnhandledEventError));
         expect(error.event).toBe(tagFor('event1'));
         expect(error.state).toBe(tagFor('state1'));
       });
@@ -315,7 +315,7 @@ describe('handle', () => {
           error = e;
         }
 
-        expect(error instanceof UnhandledEventError).toBe(true);
+        expect(error).toEqual(jasmine.any(UnhandledEventError));
         expect(error.event).toBe(tagFor('event1'));
         expect(error.state).toBe(tagFor('state1'));
       });
@@ -351,7 +351,7 @@ describe('handle', () => {
           error = e;
         }
 
-        expect(error instanceof UnhandledEventError).toBe(true);
+        expect(error).toEqual(jasmine.any(UnhandledEventError));
         expect(error.event).toBe(tagFor('event1'));
         expect(error.state).toBe(tagFor('state1'));
       });
@@ -421,7 +421,7 @@ describe('handle', () => {
             error = e;
           }
 
-          expect(error instanceof UnhandledEventError).toBe(true);
+          expect(error).toEqual(jasmine.any(UnhandledEventError));
           expect(error.event).toBe(tagFor('event1'));
           expect(error.state).toBe(tagFor('state1'));
         });

@@ -32,7 +32,7 @@ describe('BaseConfigurator', () => {
 describe('mapValues', () => {
   it('maps values on a Map', () => {
     const mappedMap = mapValues(new Map([['foo', 'bar'], ['baz', 'qux']]), () => 'foobar', ['baz']);
-    expect(mappedMap instanceof Map).toBe(true);
+    expect(mappedMap).toEqual(jasmine.any(Map));
     expect(mappedMap.get('foo')).toBe('foobar');
     expect(mappedMap.get('baz')).toBe('qux');
   });

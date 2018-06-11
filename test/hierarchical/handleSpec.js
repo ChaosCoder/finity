@@ -145,7 +145,7 @@ describeForAllTagTypes('heirarchial handle', () => {
         error = e;
       }
 
-      expect(error instanceof UnhandledEventError).toBe(true);
+      expect(error).toEqual(jasmine.any(UnhandledEventError));
       expect(error.event).toBe(tagFor('nonHandleable'));
       expect(error.state).toBe(tagFor('state11'));
     });
