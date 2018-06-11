@@ -9,16 +9,36 @@ export default class HierarchicalStateMachine {
     this.taskScheduler = taskScheduler;
   }
 
-  static async start(config) {
+  static build(config) {
     const taskScheduler = new TaskScheduler();
     let rootStateMachine;
     const createContext = stateMachine => ({
       stateMachine: new HierarchicalStateMachine(rootStateMachine, stateMachine, taskScheduler),
     });
     rootStateMachine = new StateMachine(config, taskScheduler, createContext);
-    await taskScheduler.enqueue(() => rootStateMachine.start());
-    await taskScheduler.runAll();
     return new HierarchicalStateMachine(rootStateMachine, rootStateMachine, taskScheduler);
+  }
+
+  async start() {
+    await this.taskScheduler.enqueue(() => this.rootStateMachine.start());
+    await this.taskScheduler.runAll();
+    return this;
+  }
+
+  async stop() {
+    await this.taskScheduler.enqueue(async () => {
+      this.rootStateMachine.stop();
+    });
+    await this.taskScheduler.runAll();
+    return this;
+  }
+
+  isStarted() {
+    return this.getStateMachines().reduce((acc, x) => acc && x.isStarted(), true);
+  }
+
+  isStopped() {
+    return this.getStateMachines().reduce((acc, x) => acc && !x.isStarted(), true);
   }
 
   getCurrentState() {

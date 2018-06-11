@@ -10,8 +10,8 @@ export class UnhandledEventError extends Error {
 }
 
 export class StateMachineNotStartedError extends Error {
-  constructor(stateMachine) {
-    super('Cannot handle events before starting the state machine!');
+  constructor(stateMachine, message) {
+    super(message);
     this.stateMachine = stateMachine;
   }
 }

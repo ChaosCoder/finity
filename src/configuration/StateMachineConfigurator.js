@@ -33,8 +33,12 @@ export default class StateMachineConfigurator extends BaseConfigurator {
     return this.buildConfig();
   }
 
-  start() {
+  build() {
     const config = this.getConfig();
-    return HierarchicalStateMachine.start(config);
+    return HierarchicalStateMachine.build(config);
+  }
+
+  async start() {
+    return await this.build().start();
   }
 }

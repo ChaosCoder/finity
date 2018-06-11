@@ -7,7 +7,11 @@ const Finity = {
   },
 
   async start(config) {
-    return await HierarchicalStateMachine.start(config);
+    return await HierarchicalStateMachine.build(config).start();
+  },
+
+  build(config) {
+    return HierarchicalStateMachine.build(config);
   },
 };
 

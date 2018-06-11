@@ -2,6 +2,7 @@ declare const Finity: {
   configure(): StateMachineConfigurator<string, string>;
   configure<S, E>(): StateMachineConfigurator<S, E>;
   start<S, E>(config: Configuration<S, E>): Promise<StateMachine<S, E>>;
+  build<S, E>(config: Configuration<S, E>): StateMachine<S, E>;
 };
 
 export default Finity;
@@ -15,6 +16,7 @@ export interface StateMachineConfigurator<S, E> extends BaseConfigurator<S, E> {
   initialState(state: S): StateConfigurator<S, E>;
   state(state: S): StateConfigurator<S, E>;
   start(): Promise<StateMachine<S, E>>;
+  build(): StateMachine<S, E>;
 }
 
 export type StateHook<S, E> = (state: S, context: Context<S, E>) => void | Promise<void>;
@@ -75,6 +77,10 @@ export interface StateMachine<S, E> {
   getStateHierarchy(): S[];
   canHandle(event: E, eventPayload?: any): Promise<boolean>;
   handle(event: E, eventPayload?: any): Promise<any>;
+  start(): Promise<StateMachine<S, E>>;
+  stop(): Promise<StateMachine<S, E>>;
+  isStarted(): boolean;
+  isStopped(): boolean;
 }
 
 export interface Context<S, E> {

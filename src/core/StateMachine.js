@@ -56,7 +56,7 @@ export default class StateMachine {
   handle(event, eventPayload) {
     return (async () => {
       if (!this.isStarted()) {
-        throw new StateMachineNotStartedError(this);
+        throw new StateMachineNotStartedError(this, 'Cannot handle events before starting the state machine!');
       }
       const context = this.createContextWithEvent(event, eventPayload);
       const transitionConfig = await this.getFirstAllowedTransitionForEvent(context);
@@ -92,6 +92,7 @@ export default class StateMachine {
     if (!this.isStarted()) {
       await this.enterState(this.config.initialState, this.createContext());
     }
+    return this;
   }
 
   async stop() {
@@ -99,6 +100,7 @@ export default class StateMachine {
       await this.exitState(this.createContext());
       this.currentState = stopped;
     }
+    return this;
   }
 
   getSubmachine() {
