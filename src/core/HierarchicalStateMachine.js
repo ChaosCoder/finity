@@ -41,6 +41,10 @@ export default class HierarchicalStateMachine {
     return this.getStateMachines().reduce((acc, x) => acc && !x.isStarted(), true);
   }
 
+  async whenComplete() {
+    await this.taskScheduler.runAll();
+  }
+
   getCurrentState() {
     return this.currentStateMachine.getCurrentState();
   }

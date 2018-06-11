@@ -81,6 +81,7 @@ export interface StateMachine<S, E> {
   stop(): Promise<StateMachine<S, E>>;
   isStarted(): boolean;
   isStopped(): boolean;
+  whenComplete(): Promise<void>;
 }
 
 export interface Context<S, E> {
