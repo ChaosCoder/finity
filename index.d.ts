@@ -3,6 +3,7 @@ declare const Finity: {
   configure<S, E>(): StateMachineConfigurator<S, E>;
   start<S, E>(config: Configuration<S, E>): Promise<StateMachine<S, E>>;
   build<S, E>(config: Configuration<S, E>): StateMachine<S, E>;
+  readonly ignoreHandlerResult: symbol;
 };
 
 export default Finity;
@@ -19,9 +20,11 @@ export interface StateMachineConfigurator<S, E> extends BaseConfigurator<S, E> {
   build(): StateMachine<S, E>;
 }
 
-export type StateHook<S, E> = (state: S, context: Context<S, E>) => void | Promise<void>;
-export type TransitionHook<S, E> = (fromState: S, toState: S, context: Context<S, E>) => void | Promise<void>;
-export type UnhandledEventHook<S, E> = (event: E, state: S, context: Context<S, E>) => void | Promise<void>;
+export type HookReturn = void | symbol | Promise<void | symbol>;
+
+export type StateHook<S, E> = (state: S, context: Context<S, E>) => HookReturn;
+export type TransitionHook<S, E> = (fromState: S, toState: S, context: Context<S, E>) => HookReturn;
+export type UnhandledEventHook<S, E> = (event: E, state: S, context: Context<S, E>) => HookReturn;
 
 export interface GlobalConfigurator<S, E> extends BaseConfigurator<S, E>, StateMachineConfigurator<S, E> {
   onStateEnter(hook: StateHook<S, E>): GlobalConfigurator<S, E>;
@@ -31,7 +34,7 @@ export interface GlobalConfigurator<S, E> extends BaseConfigurator<S, E>, StateM
   onUnhandledEvent(hook: UnhandledEventHook<S, E>): GlobalConfigurator<S, E>;
 }
 
-export type StateAction<S, E> = (state: S, context: Context<S, E>) => void | Promise<void>;
+export type StateAction<S, E> = (state: S, context: Context<S, E>) => HookReturn;
 
 export type AsyncOperation<S, E> = (state: S, context: Context<S, E>) => Promise<any>;
 
@@ -93,11 +96,12 @@ export interface Context<S, E> {
 }
 
 export declare class UnhandledEventError<S, E> extends Error {
-  constructor(event: E, state: S, context: Context<S, E>);
+  constructor(event?: E, state?: S, context?: Context<S, E>);
 }
 
 
 export declare class StateMachineNotStartedError<S, E> extends Error {
   constructor(stateMachine: StateMachine<S, E>, message: string);
 }
+
 export declare class StateMachineConfigError extends Error { }

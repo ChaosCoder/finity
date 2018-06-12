@@ -1,5 +1,6 @@
 import { StateMachineConfigurator } from './configuration';
 import HierarchicalStateMachine from './core/HierarchicalStateMachine';
+import { ignoreHandlerResult } from './core/StateMachine';
 
 const Finity = {
   configure() {
@@ -13,6 +14,8 @@ const Finity = {
   build(config) {
     return HierarchicalStateMachine.build(config);
   },
+
+  get ignoreHandlerResult() { return ignoreHandlerResult; },
 };
 
 export default Finity;

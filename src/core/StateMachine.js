@@ -3,6 +3,8 @@ import invokeEach from '../utils/invokeEach';
 
 const noop = () => {};
 const stopped = Symbol('StateMachine:stopped');
+const symHandlerThrewError = Symbol('StateMachine::symHandlerThrewError');
+export const ignoreHandlerResult = Symbol('StateMachine::ignoreHandlerResult');
 
 export default class StateMachine {
   constructor(config, taskScheduler, contextFactory) {
@@ -70,12 +72,29 @@ export default class StateMachine {
   async handleUnhandledEvent(event, eventPayload) {
     const context = this.createContextWithEvent(event, eventPayload);
     if (this.config.global.unhandledEventHooks.length > 0) {
-      return (await invokeEach.bind(context.stateMachine)(
-        this.config.global.unhandledEventHooks,
+      const handlerResults = (await invokeEach.bind(context.stateMachine)(
+        this.config.global.unhandledEventHooks.map(
+          handler => (async (...args) => {
+            try {
+              return await handler(...args);
+            } catch (e) {
+              return [symHandlerThrewError, e];
+            }
+          })
+        ),
         event,
         this.currentState,
         context
-      ))[0];
+      )).filter(x => x !== ignoreHandlerResult);
+      const handlerSuccesses = handlerResults.filter(result =>
+        !Array.isArray(result) ||
+        result[0] !== symHandlerThrewError);
+      const handlerFailures = handlerResults.filter(result =>
+        Array.isArray(result) &&
+        result[0] === symHandlerThrewError
+      );
+      if (handlerFailures.length > 0) throw handlerFailures[0];
+      if (handlerSuccesses.length > 0) return handlerSuccesses.filter(x => x !== undefined)[0];
     }
     throw new UnhandledEventError(
       event,
