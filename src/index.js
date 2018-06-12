@@ -2,3 +2,4 @@
 import 'babel-polyfill';
 
 export { default } from './Finity';
+export * from './Finity';

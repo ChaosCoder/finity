@@ -16,3 +16,4 @@ const Finity = {
 };
 
 export default Finity;
+export * from './core/Errors';

@@ -91,3 +91,13 @@ export interface Context<S, E> {
   result?: any;
   error?: Error;
 }
+
+export declare class UnhandledEventError<S, E> extends Error {
+  constructor(event: E, state: S, context: Context<S, E>);
+}
+
+
+export declare class StateMachineNotStartedError<S, E> extends Error {
+  constructor(stateMachine: StateMachine<S, E>, message: string);
+}
+export declare class StateMachineConfigError extends Error { }
