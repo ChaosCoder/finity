@@ -127,11 +127,7 @@ export default class StateMachine {
   }
 
   async executeTransition(transitionConfig, context) {
-    if (transitionConfig.ignore) {
-      return undefined;
-    }
-
-    if (!transitionConfig.isInternal) {
+    if (!transitionConfig.isInternal && !transitionConfig.ignore) {
       await this.exitState(context);
     }
 
@@ -139,12 +135,15 @@ export default class StateMachine {
       transitionConfig.targetState :
       this.currentState;
 
-    await invokeEach.bind(context.stateMachine)(
-      this.config.global.transitionHooks,
-      this.currentState,
-      nextState,
-      context
-    );
+    if (!transitionConfig.ignore) {
+      await invokeEach.bind(context.stateMachine)(
+        this.config.global.transitionHooks,
+        this.currentState,
+        nextState,
+        context
+      );
+    }
+
     const actionRetvals = await invokeEach.bind(context.stateMachine)(
       transitionConfig.actions,
       this.currentState,
@@ -152,7 +151,7 @@ export default class StateMachine {
       context
     );
 
-    if (!transitionConfig.isInternal) {
+    if (!transitionConfig.isInternal && !transitionConfig.ignore) {
       await this.enterState(nextState, context);
     }
 
